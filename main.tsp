@@ -1,44 +1,27 @@
 import "@typespec/http";
+import "@typespec/rest";
+import "@typespec/openapi3";
 
 using Http;
-@service(#{ title: "Widget Service" })
-namespace DemoService;
+using Rest;
 
-model Widget {
-  id: string;
-  weight: int32;
-  color: "red" | "blue";
+/** This is a pet store service. */
+@service(#{ title: "Pet Store Service" })
+@server("https://example.com", "The service endpoint")
+namespace PetStore;
+
+@route("/pets")
+interface Pets {
+  list(): Pet[];
 }
 
-model WidgetList {
-  items: Widget[];
-}
+model Pet {
+  @minLength(100)
+  name: string;
 
-@error
-model Error {
-  code: int32;
-  message: string;
-}
+  @minValue(0)
+  @maxValue(100)
+  age: int32;
 
-model AnalyzeResult {
-  id: string;
-  analysis: string;
-}
-
-@route("/widgets")
-@tag("Widgets")
-interface Widgets {
-  /** List widgets */
-  @get list(): WidgetList | Error;
-  /** Read widgets */
-  @get read(@path id: string): Widget | Error;
-  /** Create a widget */
-  @post create(@body body: Widget): Widget | Error;
-  /** Update a widget */
-  @patch update(@path id: string, @body body: MergePatchUpdate<Widget>): Widget | Error;
-  /** Delete a widget */
-  @delete delete(@path id: string): void | Error;
-
-  /** Analyze a widget */
-  @route("{id}/analyze") @post analyze(@path id: string): AnalyzeResult | Error;
+  kind: "dog" | "cat" | "fish";
 }
